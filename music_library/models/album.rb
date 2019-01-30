@@ -15,7 +15,6 @@ class Album
   end
 
   def save()
-      db = PG.connect({ dbname: 'music_library', host: 'localhost' })
       sql = "INSERT INTO albums
       (
         title,
@@ -27,18 +26,41 @@ class Album
       )
       RETURNING id"
       values = [@title, @genre, @artist_id]
-      db.prepare("save", sql)
-      @id = db.exec_prepared("save", values)[0]["id"].to_i
-      db.close()
+      @id = SqlRunner.run(sql, values)[0]["id"].to_i
   end
 
+  # def update()
+  #   sql = "UPDATE albums SET (title, genre, artist_id)
+  #   VALUES ($1, $2, $3) WHERE id = $4"
+  #   values = [@title, @genre, @artist_id, @id]
+  #   SqlRunner.run(sql, values)
+  # end
+
+  def update()
+    sql = "
+    UPDATE albums SET (
+      title,
+      genre,
+      artist_id
+    ) =
+    (
+      $1, $2, $3
+    )
+    WHERE id = $4"
+    values = [@title, @genre, @artist_id, @id]
+    SqlRunner.run(sql, values)
+  end
+  def resp_art()
+    sql = "SELECT * FROM artists WHERE id = $1"
+    values = [@artist_id]
+    results = SqlRunner.run(sql, values)
+    resp_art = results.map { |artist| Artist.new(artist)}
+    return resp_art[0].name
+  end
 
   def self.delete_all
-    db = PG.connect({ dbname: 'music_library', host: 'localhost' })
     sql = "DELETE FROM albums"
-    db.prepare("delete_all", sql)
-    db.exec_prepared("delete_all")
-    db.close()
+    SqlRunner.run(sql)
   end
 
   def self.all()
@@ -47,11 +69,5 @@ class Album
     return albums.map { |album| Album.new(album) }
   end
 
-  def resp_art()
-    sql = "SELECT * FROM artists WHERE id = $1"
-    values = [@artist_id]
-    results = SqlRunner.run(sql, values)
-    resp_art = results.map { |artist| Artist.new(artist)}
-    return resp_art[0].name
-  end
+
 end

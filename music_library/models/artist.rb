@@ -13,21 +13,19 @@ class Artist
   end
 
   def save()
-    db = PG.connect({ dbname: 'music_library', host: 'localhost' })
     sql = "INSERT INTO artists (name) VALUES ($1) RETURNING *"
     values = [@name]
-    db.prepare("save", sql)
-    @id = db.exec_prepared("save", values)[0]["id"].to_i
-    db.close()
+    @id = SqlRunner.run(sql, values)[0]["id"].to_i
+  end
+  def update()
+    sql = "UPDATE customers SET (name) = ($1) WHERE id = $2"
+    values = [@name, @id]
+    SqlRunner.run(sql, values)
   end
 
-
   def self.delete_all
-    db = PG.connect({ dbname: 'music_library', host: 'localhost' })
     sql = "DELETE FROM artists"
-    db.prepare("delete_all", sql)
-    db.exec_prepared("delete_all")
-    db.close()
+    SqlRunner.run(sql)
   end
 
   def self.all()

@@ -43,12 +43,11 @@ album4 = Album.new({
   })
 album4.save
 
+album2.genre = 'rock'
+album2.update
 
 artists = Artist.all()
-
 albums = Album.all
-
-
 
 
 
