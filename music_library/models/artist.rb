@@ -17,11 +17,27 @@ class Artist
     values = [@name]
     @id = SqlRunner.run(sql, values)[0]["id"].to_i
   end
+
   def update()
-    sql = "UPDATE customers SET (name) = ($1) WHERE id = $2"
-    values = [@name, @id]
+    sql = "UPDATE artists SET name = $1
+    WHERE id = $2"
+    values = [@title, @id]
     SqlRunner.run(sql, values)
   end
+
+  def album_list()
+    sql = "SELECT * FROM albums WHERE artist_id = $1"
+    values = [@id]
+    results = SqlRunner.run(sql, values)
+    return results.map { |album| Album.new(album)}
+  end
+
+  def delete()
+    sql = "DELETE FROM artists WHERE id = $1"
+    values = [@id]
+    SqlRunner.run(sql, values)
+  end
+
 
   def self.delete_all
     sql = "DELETE FROM artists"
@@ -34,10 +50,4 @@ class Artist
     return artists.map { |artist| Artist.new(artist) }
   end
 
-  def album_list()
-    sql = "SELECT * FROM albums WHERE artist_id = $1"
-    values = [@id]
-    results = SqlRunner.run(sql, values)
-    return results.map { |album| Album.new(album)}
-  end
 end
