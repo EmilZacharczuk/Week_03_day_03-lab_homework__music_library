@@ -43,8 +43,14 @@ album4 = Album.new({
   })
 album4.save
 
+artist1.name = 'King'
+artist1.update
+
 album2.genre = 'rock'
 album2.update
+
+album1.delete
+artist3.delete
 
 artists = Artist.all()
 albums = Album.all
